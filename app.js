@@ -1,18 +1,8 @@
 import express from 'express';
 import cors from 'cors';
 import sequelize from './utils/DB.connection.js';
-import {
-    User,
-    Recipe,
-    Review,
-    Rating,
-    Favorite,
-    Collection,
-    CollectionRecipe,
-    Follow
-} from './models/associations.js';
+import { User, Recipe, Review, Rating, Favorite, Collection, CollectionRecipe, Follow } from './models/associations.js';
 
-// Import routes
 import userRoutes from './routes/user.routes.js';
 import recipeRoutes from './routes/recipe.routes.js';
 import ratingRoutes from './routes/rating.routes.js';

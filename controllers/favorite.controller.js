@@ -2,7 +2,6 @@ import Favorite from '../models/favorite.model.js';
 import Recipe from '../models/recipes.model.js';
 import User from '../models/user.model.js';
 
-// Add to Favorites
 export const addFavorite = async (req, res) => {
     try {
         const { recipeId } = req.params;
@@ -12,7 +11,6 @@ export const addFavorite = async (req, res) => {
             return res.status(404).json({ message: 'Recipe not found' });
         }
 
-        // Check if already favorited
         const existingFavorite = await Favorite.findOne({
             where: { userId: req.user.id, recipeId }
         });
@@ -38,7 +36,6 @@ export const addFavorite = async (req, res) => {
     }
 };
 
-// Remove from Favorites
 export const removeFavorite = async (req, res) => {
     try {
         const { recipeId } = req.params;
@@ -62,7 +59,6 @@ export const removeFavorite = async (req, res) => {
     }
 };
 
-// Get User Favorites
 export const getUserFavorites = async (req, res) => {
     try {
         const { page = 1, limit = 10 } = req.query;
@@ -100,7 +96,6 @@ export const getUserFavorites = async (req, res) => {
     }
 };
 
-// Check if Recipe is Favorited
 export const checkFavorite = async (req, res) => {
     try {
         const { recipeId } = req.params;

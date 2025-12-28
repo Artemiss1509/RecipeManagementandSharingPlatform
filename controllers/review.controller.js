@@ -2,7 +2,6 @@ import Review from '../models/review.model.js';
 import Recipe from '../models/recipes.model.js';
 import User from '../models/user.model.js';
 
-// Create Review
 export const createReview = async (req, res) => {
     try {
         const { recipeId } = req.params;
@@ -13,7 +12,6 @@ export const createReview = async (req, res) => {
             return res.status(404).json({ message: 'Recipe not found' });
         }
 
-        // Check if user already reviewed
         const existingReview = await Review.findOne({
             where: { userId: req.user.id, recipeId }
         });
@@ -49,7 +47,6 @@ export const createReview = async (req, res) => {
     }
 };
 
-// Get Recipe Reviews
 export const getRecipeReviews = async (req, res) => {
     try {
         const { recipeId } = req.params;
@@ -84,7 +81,6 @@ export const getRecipeReviews = async (req, res) => {
     }
 };
 
-// Update Review
 export const updateReview = async (req, res) => {
     try {
         const { id } = req.params;
@@ -125,7 +121,6 @@ export const updateReview = async (req, res) => {
     }
 };
 
-// Delete Review
 export const deleteReview = async (req, res) => {
     try {
         const { id } = req.params;
@@ -151,7 +146,6 @@ export const deleteReview = async (req, res) => {
     }
 };
 
-// Get User Reviews
 export const getUserReviews = async (req, res) => {
     try {
         const { userId } = req.params;

@@ -12,7 +12,6 @@ import { authenticate } from '../middleware/auth.middleware.js';
 
 const router = Router();
 
-// Protected routes
 router.post('/', authenticate, createCollection);
 router.get('/', authenticate, getUserCollections);
 router.get('/user/:userId', getUserCollections);

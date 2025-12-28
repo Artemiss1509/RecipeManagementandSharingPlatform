@@ -12,7 +12,6 @@ import { authenticate, isAdmin } from '../middleware/auth.middleware.js';
 
 const router = Router();
 
-// All admin routes require authentication and admin role
 router.use(authenticate, isAdmin);
 
 router.get('/users', getAllUsers);

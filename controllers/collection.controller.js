@@ -3,7 +3,6 @@ import CollectionRecipe from '../models/collectionRecipe.model.js';
 import Recipe from '../models/recipes.model.js';
 import User from '../models/user.model.js';
 
-// Create Collection
 export const createCollection = async (req, res) => {
     try {
         const { name, description } = req.body;
@@ -26,7 +25,6 @@ export const createCollection = async (req, res) => {
     }
 };
 
-// Get User Collections
 export const getUserCollections = async (req, res) => {
     try {
         const { userId } = req.params || req.user.id;
@@ -53,7 +51,6 @@ export const getUserCollections = async (req, res) => {
     }
 };
 
-// Get Collection by ID
 export const getCollectionById = async (req, res) => {
     try {
         const { id } = req.params;
@@ -99,7 +96,6 @@ export const getCollectionById = async (req, res) => {
     }
 };
 
-// Update Collection
 export const updateCollection = async (req, res) => {
     try {
         const { id } = req.params;
@@ -132,7 +128,6 @@ export const updateCollection = async (req, res) => {
     }
 };
 
-// Delete Collection
 export const deleteCollection = async (req, res) => {
     try {
         const { id } = req.params;
@@ -158,7 +153,6 @@ export const deleteCollection = async (req, res) => {
     }
 };
 
-// Add Recipe to Collection
 export const addRecipeToCollection = async (req, res) => {
     try {
         const { collectionId, recipeId } = req.params;
@@ -177,7 +171,6 @@ export const addRecipeToCollection = async (req, res) => {
             return res.status(404).json({ message: 'Recipe not found' });
         }
 
-        // Check if recipe already in collection
         const existingEntry = await CollectionRecipe.findOne({
             where: { collectionId, recipeId }
         });
@@ -197,7 +190,6 @@ export const addRecipeToCollection = async (req, res) => {
     }
 };
 
-// Remove Recipe from Collection
 export const removeRecipeFromCollection = async (req, res) => {
     try {
         const { collectionId, recipeId } = req.params;

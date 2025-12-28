@@ -77,7 +77,7 @@ export const toggleUserStatus = async (req, res) => {
     }
 };
 
-// Delete User (Admin)
+
 export const deleteUser = async (req, res) => {
     try {
         const { userId } = req.params;
@@ -95,7 +95,6 @@ export const deleteUser = async (req, res) => {
             return res.status(403).json({ message: 'Cannot delete admin users' });
         }
 
-        // Delete user's images
         if (user.profileImage) {
             await deleteFromS3(user.profileImage);
         }
@@ -118,7 +117,6 @@ export const deleteUser = async (req, res) => {
     }
 };
 
-// Delete Recipe (Admin)
 export const deleteRecipeAdmin = async (req, res) => {
     try {
         const { recipeId } = req.params;
@@ -129,14 +127,11 @@ export const deleteRecipeAdmin = async (req, res) => {
             return res.status(404).json({ message: 'Recipe not found' });
         }
 
-        // Delete image
         if (recipe.imageUrl) {
             await deleteFromS3(recipe.imageUrl);
         }
 
         await recipe.destroy();
-
-        // TODO: Send notification to user about recipe deletion with reason
 
         res.status(200).json({ 
             message: 'Recipe deleted successfully',
@@ -150,7 +145,6 @@ export const deleteRecipeAdmin = async (req, res) => {
     }
 };
 
-// Delete Review (Admin)
 export const deleteReviewAdmin = async (req, res) => {
     try {
         const { reviewId } = req.params;
@@ -175,7 +169,6 @@ export const deleteReviewAdmin = async (req, res) => {
     }
 };
 
-// Get Platform Statistics
 export const getPlatformStatistics = async (req, res) => {
     try {
         const totalUsers = await User.count();
@@ -183,7 +176,6 @@ export const getPlatformStatistics = async (req, res) => {
         const totalRecipes = await Recipe.count();
         const totalReviews = await Review.count();
 
-        // Get recipes created in last 30 days
         const thirtyDaysAgo = new Date();
         thirtyDaysAgo.setDate(thirtyDaysAgo.getDate() - 30);
         
@@ -218,7 +210,6 @@ export const getPlatformStatistics = async (req, res) => {
     }
 };
 
-// Make User Admin
 export const makeAdmin = async (req, res) => {
     try {
         const { userId } = req.params;

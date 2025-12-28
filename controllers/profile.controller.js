@@ -4,7 +4,6 @@ import Follow from '../models/follow.model.js';
 import { uploadToS3, deleteFromS3 } from '../utils/AWS-S3.js';
 import bcrypt from 'bcryptjs';
 
-// Get User Profile
 export const getUserProfile = async (req, res) => {
     try {
         const { userId } = req.params;
@@ -17,7 +16,6 @@ export const getUserProfile = async (req, res) => {
             return res.status(404).json({ message: 'User not found' });
         }
 
-        // Get statistics
         const recipeCount = await Recipe.count({ where: { userId } });
         const followerCount = await Follow.count({ where: { followingId: userId } });
         const followingCount = await Follow.count({ where: { followerId: userId } });
@@ -38,7 +36,6 @@ export const getUserProfile = async (req, res) => {
     }
 };
 
-// Get Current User Profile
 export const getCurrentUserProfile = async (req, res) => {
     try {
         const user = await User.findByPk(req.user.id, {
@@ -65,13 +62,11 @@ export const getCurrentUserProfile = async (req, res) => {
     }
 };
 
-// Update User Profile
 export const updateUserProfile = async (req, res) => {
     try {
         const { username, email, bio } = req.body;
         const user = await User.findByPk(req.user.id);
 
-        // Check if username is taken
         if (username && username !== user.username) {
             const existingUser = await User.findOne({ where: { username } });
             if (existingUser) {
@@ -79,7 +74,6 @@ export const updateUserProfile = async (req, res) => {
             }
         }
 
-        // Check if email is taken
         if (email && email !== user.email) {
             const existingUser = await User.findOne({ where: { email } });
             if (existingUser) {
@@ -87,7 +81,6 @@ export const updateUserProfile = async (req, res) => {
             }
         }
 
-        // Handle profile image update
         let profileImage = user.profileImage;
         if (req.file) {
             if (user.profileImage) {
@@ -119,7 +112,6 @@ export const updateUserProfile = async (req, res) => {
     }
 };
 
-// Change Password
 export const changePassword = async (req, res) => {
     try {
         const { currentPassword, newPassword } = req.body;
@@ -130,13 +122,11 @@ export const changePassword = async (req, res) => {
 
         const user = await User.findByPk(req.user.id);
 
-        // Verify current password
         const isMatch = await bcrypt.compare(currentPassword, user.password);
         if (!isMatch) {
             return res.status(400).json({ message: 'Current password is incorrect' });
         }
 
-        // Hash new password
         const salt = await bcrypt.genSalt(10);
         const hashedPassword = await bcrypt.hash(newPassword, salt);
 
@@ -151,25 +141,21 @@ export const changePassword = async (req, res) => {
     }
 };
 
-// Delete Account
 export const deleteAccount = async (req, res) => {
     try {
         const { password } = req.body;
 
         const user = await User.findByPk(req.user.id);
 
-        // Verify password
         const isMatch = await bcrypt.compare(password, user.password);
         if (!isMatch) {
             return res.status(400).json({ message: 'Incorrect password' });
         }
 
-        // Delete user's profile image if exists
         if (user.profileImage) {
             await deleteFromS3(user.profileImage);
         }
 
-        // Delete user's recipe images
         const recipes = await Recipe.findAll({ where: { userId: req.user.id } });
         for (const recipe of recipes) {
             if (recipe.imageUrl) {
@@ -177,7 +163,6 @@ export const deleteAccount = async (req, res) => {
             }
         }
 
-        // Delete user account (cascade will handle related records)
         await user.destroy();
 
         res.status(200).json({ message: 'Account deleted successfully' });

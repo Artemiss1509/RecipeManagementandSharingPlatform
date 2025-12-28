@@ -4,7 +4,6 @@ import Recipe from '../models/recipes.model.js';
 import Review from '../models/review.model.js';
 import { Op } from 'sequelize';
 
-// Follow a User
 export const followUser = async (req, res) => {
     try {
         const { userId } = req.params;
@@ -18,7 +17,6 @@ export const followUser = async (req, res) => {
             return res.status(404).json({ message: 'User not found' });
         }
 
-        // Check if already following
         const existingFollow = await Follow.findOne({
             where: { followerId: req.user.id, followingId: userId }
         });
@@ -44,7 +42,6 @@ export const followUser = async (req, res) => {
     }
 };
 
-// Unfollow a User
 export const unfollowUser = async (req, res) => {
     try {
         const { userId } = req.params;
@@ -68,7 +65,6 @@ export const unfollowUser = async (req, res) => {
     }
 };
 
-// Get User Followers
 export const getFollowers = async (req, res) => {
     try {
         const { userId } = req.params;
@@ -87,7 +83,6 @@ export const getFollowers = async (req, res) => {
             order: [['createdAt', 'DESC']]
         });
 
-        // Note: We need to manually query followers due to self-referencing relationship
         const followers = await User.findAll({
             include: [{
                 model: Follow,
@@ -117,7 +112,6 @@ export const getFollowers = async (req, res) => {
     }
 };
 
-// Get User Following
 export const getFollowing = async (req, res) => {
     try {
         const { userId } = req.params;
@@ -160,7 +154,6 @@ export const getFollowing = async (req, res) => {
     }
 };
 
-// Check if Following
 export const checkFollowing = async (req, res) => {
     try {
         const { userId } = req.params;
@@ -180,13 +173,11 @@ export const checkFollowing = async (req, res) => {
     }
 };
 
-// Get Activity Feed
 export const getActivityFeed = async (req, res) => {
     try {
         const { page = 1, limit = 20 } = req.query;
         const offset = (page - 1) * limit;
 
-        // Get users that the current user follows
         const following = await Follow.findAll({
             where: { followerId: req.user.id },
             attributes: ['followingId']
@@ -201,7 +192,6 @@ export const getActivityFeed = async (req, res) => {
             });
         }
 
-        // Get recent recipes from followed users
         const recipes = await Recipe.findAll({
             where: { userId: { [Op.in]: followingIds } },
             include: [{
@@ -213,7 +203,6 @@ export const getActivityFeed = async (req, res) => {
             order: [['createdAt', 'DESC']]
         });
 
-        // Get recent reviews from followed users
         const reviews = await Review.findAll({
             where: { userId: { [Op.in]: followingIds } },
             include: [
@@ -232,7 +221,6 @@ export const getActivityFeed = async (req, res) => {
             order: [['createdAt', 'DESC']]
         });
 
-        // Combine and sort activities
         const activities = [
             ...recipes.map(recipe => ({
                 type: 'recipe',

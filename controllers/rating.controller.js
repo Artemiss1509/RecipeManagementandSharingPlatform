@@ -2,7 +2,6 @@ import Rating from '../models/rating.model.js';
 import Recipe from '../models/recipes.model.js';
 import sequelize from '../utils/DB.connection.js';
 
-// Rate a Recipe
 export const rateRecipe = async (req, res) => {
     const transaction = await sequelize.transaction();
     
@@ -20,16 +19,13 @@ export const rateRecipe = async (req, res) => {
             return res.status(404).json({ message: 'Recipe not found' });
         }
 
-        // Check if user already rated
         let existingRating = await Rating.findOne({
             where: { userId: req.user.id, recipeId }
         });
 
         if (existingRating) {
-            // Update existing rating
             await existingRating.update({ rating }, { transaction });
         } else {
-            // Create new rating
             existingRating = await Rating.create({
                 userId: req.user.id,
                 recipeId,
@@ -37,7 +33,6 @@ export const rateRecipe = async (req, res) => {
             }, { transaction });
         }
 
-        // Recalculate average rating
         const ratings = await Rating.findAll({
             where: { recipeId },
             attributes: [[sequelize.fn('AVG', sequelize.col('rating')), 'avgRating'], [sequelize.fn('COUNT', sequelize.col('id')), 'totalRatings']]
@@ -68,7 +63,6 @@ export const rateRecipe = async (req, res) => {
     }
 };
 
-// Get User's Rating for a Recipe
 export const getUserRating = async (req, res) => {
     try {
         const { recipeId } = req.params;
@@ -90,7 +84,6 @@ export const getUserRating = async (req, res) => {
     }
 };
 
-// Delete Rating
 export const deleteRating = async (req, res) => {
     const transaction = await sequelize.transaction();
     
@@ -108,7 +101,6 @@ export const deleteRating = async (req, res) => {
 
         await rating.destroy({ transaction });
 
-        // Recalculate average rating
         const recipe = await Recipe.findByPk(recipeId);
         const ratings = await Rating.findAll({
             where: { recipeId },

@@ -32,11 +32,11 @@ const Recipe = sequelize.define("Recipe", {
         allowNull: false,
     },
     prepTime: {
-        type: DataTypes.INTEGER, // in minutes
+        type: DataTypes.INTEGER,
         allowNull: false,
     },
     cookTime: {
-        type: DataTypes.INTEGER, // in minutes
+        type: DataTypes.INTEGER,
         allowNull: false,
     },
     servings: {

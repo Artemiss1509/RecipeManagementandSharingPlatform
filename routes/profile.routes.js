@@ -11,7 +11,6 @@ import upload from '../middleware/upload.middleware.js';
 
 const router = Router();
 
-// Public routes
 router.get('/:userId', getUserProfile);
 
 // Protected routes

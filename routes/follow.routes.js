@@ -11,7 +11,6 @@ import { authenticate } from '../middleware/auth.middleware.js';
 
 const router = Router();
 
-// All follow routes require authentication
 router.post('/:userId', authenticate, followUser);
 router.delete('/:userId', authenticate, unfollowUser);
 router.get('/:userId/followers', getFollowers);
