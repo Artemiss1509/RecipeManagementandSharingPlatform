@@ -1,4 +1,4 @@
-import { Sequelize, DataTypes } from "sequelize";
+import { DataTypes } from "sequelize";
 import sequelize from "../utils/DB.connection.js";
 
 const User = sequelize.define("User", {
@@ -24,6 +24,24 @@ const User = sequelize.define("User", {
         type: DataTypes.STRING,
         allowNull: false,
     },
+    bio: {
+        type: DataTypes.TEXT,
+        allowNull: true,
+    },
+    profileImage: {
+        type: DataTypes.STRING,
+        allowNull: true,
+    },
+    role: {
+        type: DataTypes.ENUM({
+            values: ['user', 'admin']
+        }),
+        defaultValue: 'user',
+    },
+    isActive: {
+        type: DataTypes.BOOLEAN,
+        defaultValue: true,
+    }
 }, {
     timestamps: true,
 });

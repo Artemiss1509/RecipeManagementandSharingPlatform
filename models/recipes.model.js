@@ -1,4 +1,4 @@
-import { Sequelize, DataTypes } from "sequelize";
+import { DataTypes } from "sequelize";
 import sequelize from "../utils/DB.connection.js";
 
 const Recipe = sequelize.define("Recipe", {
@@ -6,6 +6,14 @@ const Recipe = sequelize.define("Recipe", {
         type: DataTypes.INTEGER,
         autoIncrement: true,
         primaryKey: true,
+    },
+    userId: {
+        type: DataTypes.INTEGER,
+        allowNull: false,
+        references:  {
+            model: 'Users',
+            key: 'id'
+        }
     },
     title: {
         type: DataTypes.STRING,
@@ -35,6 +43,34 @@ const Recipe = sequelize.define("Recipe", {
         type: DataTypes.INTEGER,
         allowNull: false,
     },
+    difficulty: {
+        type: DataTypes.ENUM({
+            values:['easy', 'medium', 'hard']
+        }),
+        allowNull: false,
+        defaultValue: 'medium'
+    },
+    category: {
+        type: DataTypes.STRING,
+        allowNull: true,
+    },
+    dietaryPreferences: {
+        type: DataTypes.ARRAY(DataTypes.STRING),
+        allowNull: true,
+        defaultValue: []
+    },
+    imageUrl: {
+        type: DataTypes.STRING,
+        allowNull: true,
+    },
+    averageRating: {
+        type: DataTypes.FLOAT,
+        defaultValue: 0
+    },
+    totalRatings: {
+        type: DataTypes.INTEGER,
+        defaultValue: 0
+    }
 }, {
     timestamps: true,
 });

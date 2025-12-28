@@ -20,16 +20,16 @@ async function handleFormSubmit(event) {
     };
 
     try {
-        axios.post('http://localhost:3000/users/signup', data)
-            .then(response => {
-                alert('Signup successful! Please log in.');
-                window.location.href = '/login.html';
-            })
-            .catch(error => {
-                displayError(error.response.data.message || 'Sign-up failed. Please try again.');
-                console.error('Error during signup:', error);
-                return;
-            });
+        axios.post('http://localhost:3000/api/users/signup', data)
+            
+        alert('Signup successful! Please log in.');
+        window.location.href = '/login.html';
+            
+            // .catch(error => {
+            //     displayError(error.response.data.message || 'Sign-up failed. Please try again.');
+            //     console.error('Error during signup:', error);
+            //     return;
+            // });
          
     } catch (error) {
         console.error('Error during signup:', error);
@@ -44,7 +44,7 @@ async function loginFormSubmit(event) {
     const password = event.target.password.value.trim();
 
     try {
-        const response = await axios.post('http://localhost:3000/users/sign-in', {
+        const response = await axios.post('http://localhost:3000/api/users/sign-in', {
             email,
             password
         });
@@ -56,6 +56,7 @@ async function loginFormSubmit(event) {
         window.location.href = 'HomePage.html';
     } catch (error) {
         displayError(error.response?.data?.message || 'Login failed');
+        console.error('Error during login:', error);
     }
 }
 
