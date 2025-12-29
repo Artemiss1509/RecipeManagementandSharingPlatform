@@ -2,13 +2,18 @@
 <html>
 <head>
     <title>Recipe Details</title>
+    <link rel="stylesheet" href="style.css">
     <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
 </head>
 <body>
+    <h1>Recipe Details</h1>
+    <nav class="navbar">
     <button onclick="window.location.href='recipes.html'">Back to Recipes</button>
     <button onclick="logout()">Logout</button>
     <button onclick="addRecipeToCol()">Add Recipe to my Collection</button>
+    </nav>
 
+    <div class="container">
     <div id="recipe-detail"></div>
     
     <div>
@@ -31,6 +36,7 @@
     </div>
 
     <div id="reviews"></div>
+    </div>
 
     <script>
         const API_URL = 'http://localhost:3000/api';
@@ -111,9 +117,7 @@
                 
                 response.data.reviews.forEach(review => {
                     const div = document.createElement('div');
-                    div.style.border = '1px solid #eee';
-                    div.style.padding = '10px';
-                    div.style.margin = '5px 0';
+                    div.className = 'recipe-card';
                     div.innerHTML = `
                         <p><strong>${review.user?.username}</strong></p>
                         <p>${review.comment}</p>

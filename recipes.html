@@ -2,10 +2,12 @@
 <html>
 <head>
     <title>Browse Recipes</title>
+    <link rel="stylesheet" href="style.css">
     <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
 </head>
 <body>
     <h1>Recipe Browser</h1>
+    <nav class="navbar">
     <button onclick="logout()">Logout</button>
     <button onclick="window.location.href='favorites.html'">My Favorites</button>
     <button onclick="window.location.href='collections.html'">My Collections</button>
@@ -14,8 +16,11 @@
     <button onclick="window.location.href='create-recipe.html'">Create Recipe</button>
     <button onclick="window.location.href='profile.html'">My Profile</button>
     <button onclick="window.location.href='admin.html'">Admin Access</button>
+    </nav>
+
     
-    <div>
+    <div class="container">
+        <div class="filters">
         <h3>Search & Filter</h3>
         <input type="text" id="search" placeholder="Search recipes...">
         <select id="category">
@@ -38,9 +43,10 @@
             <option value="gluten-free">Gluten Free</option>
         </select>
         <button onclick="searchRecipes()">Search</button>
+        </div>
     </div>
 
-    <div id="recipes"></div>
+    <div id="recipes" class="recipe-grid"></div>
     
     <div id="pagination">
         <button onclick="prevPage()" id="prevBtn">Previous</button>
@@ -90,9 +96,7 @@
             
             recipes.forEach(recipe => {
                 const div = document.createElement('div');
-                div.style.border = '1px solid #ccc';
-                div.style.padding = '10px';
-                div.style.margin = '10px 0';
+                div.className = 'recipe-card';
                 div.innerHTML = `
                     <h3>${recipe.title}</h3>
                     <p>${recipe.description}</p>

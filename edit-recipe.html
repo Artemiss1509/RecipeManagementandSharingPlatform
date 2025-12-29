@@ -2,12 +2,15 @@
 <html>
 <head>
     <title>Edit your recipe</title>
+    <link rel="stylesheet" href="style.css">
     <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
 </head>
 <body>
+    <nav class="navbar">
     <button onclick="window.location.href='my-recipes.html'">Back to My Recipes</button>
     <button onclick="logout()">Logout</button>
-
+    </nav>
+    <div class="container">
     <form id="recipe-form">
         <input type="text" id="title" placeholder="Recipe Title" required><br>
         <textarea id="description" placeholder="Description" required></textarea><br>
@@ -50,6 +53,7 @@
         
         <button type="submit">Update Recipe</button>
     </form>
+    </div>
 
     <script>
         const API_URL = 'http://localhost:3000/api';

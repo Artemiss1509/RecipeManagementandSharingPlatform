@@ -2,15 +2,20 @@
 <html>
 <head>
     <title>My Recipes</title>
+    <link rel="stylesheet" href="style.css">
     <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
 </head>
 <body>
     <h1>My Recipes</h1>
+    <nav class="navbar">
     <button onclick="window.location.href='recipes.html'">Browse All</button>
     <button onclick="window.location.href='create-recipe.html'">Create New</button>
     <button onclick="logout()">Logout</button>
+    </nav>
 
+    <div class="container">
     <div id="my-recipes"></div>
+    </div>
 
     <script>
         const API_URL = 'http://localhost:3000/api';
@@ -37,9 +42,7 @@
 
                 response.data.recipes.forEach(recipe => {
                     const div = document.createElement('div');
-                    div.style.border = '1px solid #ccc';
-                    div.style.padding = '10px';
-                    div.style.margin = '10px 0';
+                    div.className = 'recipe-card';
                     div.innerHTML = `
                         <h3>${recipe.title}</h3>
                         <p>${recipe.description}</p>

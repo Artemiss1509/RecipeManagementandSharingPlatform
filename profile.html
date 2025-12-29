@@ -2,13 +2,17 @@
 <html>
 <head>
     <title>My Profile</title>
+    <link rel="stylesheet" href="style.css">
     <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
 </head>
 <body>
     <h1>My Profile</h1>
+    <nav class="navbar">
     <button onclick="window.location.href='recipes.html'">Browse Recipes</button>
     <button onclick="logout()">Logout</button>
+    </nav>
 
+    <div class="container">
     <div id="profile-info"></div>
 
     <div>
@@ -26,6 +30,7 @@
         <input type="password" id="currentPassword" placeholder="Current Password">
         <input type="password" id="newPassword" placeholder="New Password">
         <button onclick="changePassword()">Change Password</button>
+    </div>
     </div>
 
     <script>

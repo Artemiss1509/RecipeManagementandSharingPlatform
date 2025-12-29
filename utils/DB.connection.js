@@ -4,7 +4,7 @@ const sequelize = new Sequelize('testDB', 'rohan', '', {
     host: 'localhost',
     dialect: 'postgres',
     port: 5432,
-    logging: false, // Set to console.log to see SQL queries
+    logging: false, 
 });
 
 (async ()=>{ 

@@ -2,27 +2,30 @@
 <html>
 <head>
     <title>Admin Dashboard</title>
+    <link rel="stylesheet" href="style.css">
     <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
 </head>
 <body>
     <h1>Admin Dashboard</h1>
-    <button onclick="window.location.href='recipes.html'">Back to Recipes</button>
-    <button onclick="logout()">Logout</button>
+    <nav class="navbar">
+        <button onclick="window.location.href='recipes.html'">Back to Recipes</button>
+        <button onclick="logout()">Logout</button>
+    </nav>
+    <div class="container">
+        <div id="stats"></div>
 
-    <div id="stats"></div>
-
-    <div>
-        <h3>Manage Users</h3>
-        <button onclick="searchUsers()">Get All Users</button>
-        <div id="users"></div>
-        <div id="reviews"></div>
+        <div>
+            <h3>Manage Users</h3>
+            <button onclick="searchUsers()">Get All Users</button>
+            <div id="users"></div>
+            <div id="reviews"></div>
+        </div>
+        <div>
+            <h3>Manage Recipes</h3>
+            <button onclick="searchRecipes()">Get All Recipes</button>
+            <div id="recipes"></div>
+        </div>
     </div>
-    <div>
-        <h3>Manage Recipes</h3>
-        <button onclick="searchRecipes()">Get All Recipes</button>
-        <div id="recipes"></div>
-    </div>
-    
 
     <script>
         const API_URL = 'http://localhost:3000/api';
@@ -69,9 +72,7 @@
 
                 response.data.users.forEach(user => {
                     const div = document.createElement('div');
-                    div.style.border = '1px solid #ccc';
-                    div.style.padding = '10px';
-                    div.style.margin = '5px 0';
+                    div.className = 'recipe-card';
                     div.innerHTML = `
                         <p><strong>${user.username}</strong> - ${user.email}</p>
                         <p>Status: ${user.isActive ? 'Active' : 'Banned'}</p>
@@ -124,9 +125,7 @@
                 container.innerHTML = '';
                 response.data.recipes.forEach(recipe=>{
                     const div = document.createElement('div');
-                    div.style.border = '1px solid #ccc';
-                    div.style.padding = '10px';
-                    div.style.margin = '5px 0';
+                    div.className = 'recipe-card';
                     div.innerHTML = `
                         <p>${recipe.title}</p>
                         <p>${recipe.description}</p>
@@ -168,9 +167,7 @@
                 container.innerHTML = '';
                 if (response.data.reviews.length === 0){
                     const div = document.createElement('div');
-                    div.style.border = '1px solid #ccc';
-                    div.style.padding = '10px';
-                    div.style.margin = '5px 0';
+                    div.className = 'recipe-card';
                     div.innerHTML = `
                         <p>No Reviews</p>
                         
@@ -179,9 +176,7 @@
                 }else{
                     response.data.reviews.forEach(review=>{
                         const div = document.createElement('div');
-                        div.style.border = '1px solid #ccc';
-                        div.style.padding = '10px';
-                        div.style.margin = '5px 0';
+                        div.className = 'recipe-card';
                         div.innerHTML = `
                             <p>${review.comment}</p>
                             <p>${review.tips}</p>

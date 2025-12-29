@@ -2,12 +2,16 @@
 <html>
 <head>
     <title>Create Recipe</title>
+    <link rel="stylesheet" href="style.css">
     <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
 </head>
 <body>
     <h1>Create New Recipe</h1>
+    <nav class="navbar">
     <button onclick="window.location.href='recipes.html'">Back</button>
+    </nav>
     
+    <div class="container">
     <form id="recipe-form">
         <input type="text" id="title" placeholder="Recipe Title" required><br>
         <textarea id="description" placeholder="Description" required></textarea><br>
@@ -50,6 +54,7 @@
         
         <button type="submit">Create Recipe</button>
     </form>
+    </div>
 
     <script>
         const API_URL = 'http://localhost:3000/api';

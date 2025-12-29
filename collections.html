@@ -2,18 +2,23 @@
 <html>
 <head>
     <title>My Collections</title>
+    <link rel="stylesheet" href="style.css">
     <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
 </head>
 <body>
     <h1>My Recipe Collections</h1>
+    <nav class="navbar">
     <button onclick="window.location.href='recipes.html'">Browse Recipes</button>
     <button onclick="logout()">Logout</button>
+    </nav>
 
+    <div class="container">
     <div>
         <h3>Create New Collection</h3>
         <input type="text" id="collectionName" placeholder="Collection Name">
         <input type="text" id="collectionDesc" placeholder="Description">
         <button onclick="createCollection()">Create</button>
+    </div>
     </div>
 
     <div id="collections"></div>
@@ -59,9 +64,7 @@
 
                 response.data.collections.forEach(collection => {
                     const div = document.createElement('div');
-                    div.style.border = '1px solid #ccc';
-                    div.style.padding = '10px';
-                    div.style.margin = '10px 0';
+                    div.className = 'recipe-card';
                     div.innerHTML = `
                         <h3>${collection.name}</h3>
                         <p>${collection.description}</p>

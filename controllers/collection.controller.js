@@ -95,37 +95,6 @@ export const getCollectionById = async (req, res) => {
     }
 };
 
-export const updateCollection = async (req, res) => {
-    try {
-        const { id } = req.params;
-        const { name, description } = req.body;
-
-        const collection = await Collection.findByPk(id);
-
-        if (!collection) {
-            return res.status(404).json({ message: 'Collection not found' });
-        }
-
-        if (collection.userId !== req.user.id) {
-            return res.status(403).json({ message: 'You are not authorized to update this collection' });
-        }
-
-        await collection.update({
-            name: name || collection.name,
-            description: description || collection.description
-        });
-
-        res.status(200).json({ 
-            message: 'Collection updated successfully', 
-            collection 
-        });
-    } catch (error) {
-        res.status(500).json({ 
-            message: 'Failed to update collection', 
-            error: error.message 
-        });
-    }
-};
 
 export const deleteCollection = async (req, res) => {
     try {

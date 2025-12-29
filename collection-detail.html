@@ -2,15 +2,21 @@
 <html>
 <head>
     <title>Collection Detail</title>
+    <link rel="stylesheet" href="style.css">
     <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
 </head>
 <body>
     <h1 id="collectionTitle">Collection Detail</h1>
-    <p id="collectionDesc"></p>
-    <div id="recipes">
-        <button onclick=""> Add Recipe</button>
+    <nav class="navbar">
+        <button onclick="window.location.href='collections.html'">Back to Collections</button>
+        <button onclick="logout()">Logout</button>
+    </nav>
+    <div class="container">
+        <p id="collectionDesc"></p>
+        <div id="recipes">
+        </div>
     </div>
-    <button onclick="window.location.href='collections.html'">Back to Collections</button>
+    
     <script>
         const API_URL = 'http://localhost:3000/api';
 
@@ -40,7 +46,7 @@
                 } else {
                     response.data.recipes.forEach(recipe => {
                         const recipeDiv = document.createElement('div');
-                        recipeDiv.innerHTML = `<h4>${recipe.title}</h4><a href="http://127.0.0.1:5500/recipe-detail.html?id=${recipe.id}"> <img src="${recipe.imageUrl}" alt="${recipe.title}" width="100"></a>`;
+                        recipeDiv.innerHTML = `<h4>${recipe.title}</h4><a href="http://127.0.0.1:5500/recipe-detail.html?id=${recipe.id}"> <img src="${recipe.imageUrl}" alt="${recipe.title}" width="100"></a><br><button onclick="removeFromCollection(${collectionId}, ${recipe.id})">Remove from Collection</button>`;
                         recipesContainer.appendChild(recipeDiv);
                     });
                 }
@@ -48,6 +54,23 @@
             } catch (error) {
                 alert('Error: ' + error.response?.data?.message);
                 console.error(error);
+            }
+        }
+
+        function logout() {
+            localStorage.clear();
+            window.location.href = 'login.html';
+        }
+
+        async function removeFromCollection(collectionId, recipeId) {
+            try {
+                await axios.delete(`${API_URL}/collections/${collectionId}/recipes/${recipeId}`, {
+                    headers: { Authorization: `Bearer ${getToken()}` }
+                });
+                alert('Recipe removed from collection!');
+                loadCollection();
+            } catch (error) {
+                alert('Error: ' + error.response?.data?.message);
             }
         }
 

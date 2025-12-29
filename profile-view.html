@@ -2,11 +2,17 @@
 <html>
 <head>
     <title>Author Profile Info</title>
+    <link rel="stylesheet" href="style.css">
     <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
 </head>
 <body>
+    <nav class="navbar">
     <button onclick="window.location.href='recipes.html'">Back to Recipes</button>
+    <button onclick="logout()">Logout</button>
+    </nav>
+    <div class="container">
     <div id="author-profile"></div>
+    </div>
     <script>
         const API_URL = 'http://localhost:3000/api';
         const params = new URLSearchParams(window.location.search);
