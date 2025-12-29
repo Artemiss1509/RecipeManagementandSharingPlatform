@@ -95,22 +95,3 @@ export const getUserFavorites = async (req, res) => {
         });
     }
 };
-
-export const checkFavorite = async (req, res) => {
-    try {
-        const { recipeId } = req.params;
-
-        const favorite = await Favorite.findOne({
-            where: { userId: req.user.id, recipeId }
-        });
-
-        res.status(200).json({ 
-            isFavorited: !!favorite 
-        });
-    } catch (error) {
-        res.status(500).json({ 
-            message: 'Failed to check favorite status', 
-            error: error.message 
-        });
-    }
-};

@@ -1,0 +1,131 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Edit your recipe</title>
+    <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
+</head>
+<body>
+    <button onclick="window.location.href='my-recipes.html'">Back to My Recipes</button>
+    <button onclick="logout()">Logout</button>
+
+    <form id="recipe-form">
+        <input type="text" id="title" placeholder="Recipe Title" required><br>
+        <textarea id="description" placeholder="Description" required></textarea><br>
+        
+        <h3>Ingredients (one per line)</h3>
+        <textarea id="ingredients" placeholder="Ingredient 1&#10;Ingredient 2" required></textarea><br>
+        
+        <h3>Instructions (one per line)</h3>
+        <textarea id="instructions" placeholder="Step 1&#10;Step 2" required></textarea><br>
+        
+        <input type="number" id="prepTime" placeholder="Prep Time (min)" required>
+        <input type="number" id="cookTime" placeholder="Cook Time (min)" required>
+        <input type="number" id="servings" placeholder="Servings" required><br>
+        <input type="file" id="image" accept="image/*"><br>
+        
+        <select id="difficulty" required>
+            <option value="">Select Difficulty</option>
+            <option value="easy">Easy</option>
+            <option value="medium">Medium</option>
+            <option value="hard">Hard</option>
+        </select>
+        
+        <select id="category" required>
+            <option value="">Select Category</option>
+            <option value="breakfast">Breakfast</option>
+            <option value="lunch">Lunch</option>
+            <option value="dinner">Dinner</option>
+            <option value="dessert">Dessert</option>
+        </select><br>
+        
+        <label>
+            <input type="checkbox" value="vegetarian"> Vegetarian
+        </label>
+        <label>
+            <input type="checkbox" value="vegan"> Vegan
+        </label>
+        <label>
+            <input type="checkbox" value="gluten-free"> Gluten Free
+        </label><br>
+        
+        <button type="submit">Update Recipe</button>
+    </form>
+
+    <script>
+        const API_URL = 'http://localhost:3000/api';
+        const params = new URLSearchParams(window.location.search);
+        const recipeId = params.get('id');
+
+        function getToken() {
+            return localStorage.getItem('token');
+        }
+
+        function logout() {
+            localStorage.clear();
+            window.location.href = 'login.html';
+        }
+
+        async function loadRecipe() {
+            try {
+                const response = await axios.get(`${API_URL}/recipes/${recipeId}`);
+                const recipe = response.data.recipe;
+
+                document.getElementById('title').value = recipe.title;
+                document.getElementById('description').value = recipe.description;
+                document.getElementById('ingredients').value = recipe.ingredients.join('\n');
+                document.getElementById('instructions').value = recipe.instructions.join('\n');
+                document.getElementById('prepTime').value = recipe.prepTime;
+                document.getElementById('cookTime').value = recipe.cookTime;
+                document.getElementById('servings').value = recipe.servings;
+                document.getElementById('difficulty').value = recipe.difficulty;
+                document.getElementById('category').value = recipe.category;
+                const checkboxes = document.querySelectorAll('input[type="checkbox"]');
+                checkboxes.forEach(cb => {
+                    cb.checked = recipe.dietaryPreferences.includes(cb.value);
+                });
+            } catch (error) {
+                console.error('Error loading recipe: ' + error.response?.data?.message);
+            }
+        }
+
+        async function updateRecipe(e) {
+            e.preventDefault();
+            
+            const ingredients = document.getElementById('ingredients').value.split('\n').filter(i => i.trim());
+            const instructions = document.getElementById('instructions').value.split('\n').filter(i => i.trim());
+            const checkboxes = document.querySelectorAll('input[type="checkbox"]:checked');
+            const dietaryPreferences = Array.from(checkboxes).map(cb => cb.value);
+            
+            const formData = new FormData();
+            formData.append('title', document.getElementById('title').value);
+            formData.append('description', document.getElementById('description').value);
+            formData.append('ingredients', JSON.stringify(ingredients));
+            formData.append('instructions', JSON.stringify(instructions));
+            formData.append('prepTime', document.getElementById('prepTime').value);
+            formData.append('cookTime', document.getElementById('cookTime').value);
+            formData.append('servings', document.getElementById('servings').value);
+            formData.append('difficulty', document.getElementById('difficulty').value);
+            formData.append('category', document.getElementById('category').value);
+            formData.append('dietaryPreferences', JSON.stringify(dietaryPreferences));
+            if (document.getElementById('image').files[0]) {
+                formData.append('image', document.getElementById('image').files[0]);
+            }
+
+            try {
+                await axios.put(`${API_URL}/recipes/${recipeId}`, formData, {
+                    headers: { 
+                        Authorization: `Bearer ${getToken()}`
+                    }
+                });
+                alert('Recipe updated successfully!');
+                window.location.href = 'my-recipes.html';
+            } catch (error) {
+                alert('Error: ' + error.response?.data?.message);
+            }
+        }
+        document.getElementById('recipe-form').addEventListener('submit', updateRecipe);
+        
+        loadRecipe();
+    </script>
+</body>
+</html>

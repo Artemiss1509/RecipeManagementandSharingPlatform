@@ -1,0 +1,69 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Activity Feed</title>
+    <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
+</head>
+<body>
+    <h1>Activity Feed</h1>
+    <button onclick="window.location.href='recipes.html'">Browse Recipes</button>
+    <button onclick="logout()">Logout</button>
+
+    <div id="feed"></div>
+
+    <script>
+        const API_URL = 'http://localhost:3000/api';
+
+        function getToken() {
+            return localStorage.getItem('token');
+        }
+
+        function logout() {
+            localStorage.clear();
+            window.location.href = 'login.html';
+        }
+
+        async function loadFeed() {
+            try {
+                const response = await axios.get(`${API_URL}/follow/feed/activity`, {
+                    headers: { Authorization: `Bearer ${getToken()}` }
+                });
+                
+                const container = document.getElementById('feed');
+                container.innerHTML = '';
+
+                response.data.activities.forEach(activity => {
+                    const div = document.createElement('div');
+                    div.style.border = '1px solid #eee';
+                    div.style.padding = '10px';
+                    div.style.margin = '10px 0';
+                    
+                    if (activity.type === 'recipe') {
+                        div.innerHTML = `
+                            <p><strong>${activity.data.author?.username}</strong> created a new recipe</p>
+                            <h4>${activity.data.title}</h4>
+                            <p>${activity.data.description}</p>
+                            <button onclick="viewRecipe(${activity.data.id})">View Recipe</button>
+                        `;
+                    } else if (activity.type === 'review') {
+                        div.innerHTML = `
+                            <p><strong>${activity.data.user?.username}</strong> reviewed ${activity.data.recipe?.title}</p>
+                            <p>${activity.data.comment}</p>
+                            <button onclick="viewRecipe(${activity.data.recipe?.id})">View Recipe</button>
+                        `;
+                    }
+                    container.appendChild(div);
+                });
+            } catch (error) {
+                alert('Error: ' + error.response?.data?.message);
+            }
+        }
+
+        function viewRecipe(id) {
+            window.location.href = `recipe-detail.html?id=${id}`;
+        }
+
+        loadFeed();
+    </script>
+</body>
+</html>

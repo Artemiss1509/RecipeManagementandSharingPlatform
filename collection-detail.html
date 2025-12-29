@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Collection Detail</title>
+    <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
+</head>
+<body>
+    <h1 id="collectionTitle">Collection Detail</h1>
+    <p id="collectionDesc"></p>
+    <div id="recipes">
+        <button onclick=""> Add Recipe</button>
+    </div>
+    <button onclick="window.location.href='collections.html'">Back to Collections</button>
+    <script>
+        const API_URL = 'http://localhost:3000/api';
+
+        function getToken() {
+            return localStorage.getItem('token');
+        }
+
+        async function loadCollection() {
+            const params = new URLSearchParams(window.location.search);
+            const collectionId = params.get('id');
+
+            try {
+                const response = await axios.get(`${API_URL}/collections/${collectionId}`, {
+                    headers: { Authorization: `Bearer ${getToken()}` }
+                });
+
+                const collection = response.data.collection;
+                document.getElementById('collectionTitle').innerText = collection.name;
+                document.getElementById('collectionDesc').innerText = collection.description;
+
+                const recipesContainer = document.getElementById('recipes');
+                recipesContainer.innerHTML = '<h3>Recipes in this Collection:</h3>';
+
+                
+                if (response.data.recipes.length === 0) {
+                    recipesContainer.innerHTML += '<p>No recipes in this collection.</p>';
+                } else {
+                    response.data.recipes.forEach(recipe => {
+                        const recipeDiv = document.createElement('div');
+                        recipeDiv.innerHTML = `<h4>${recipe.title}</h4><a href="http://127.0.0.1:5500/recipe-detail.html?id=${recipe.id}"> <img src="${recipe.imageUrl}" alt="${recipe.title}" width="100"></a>`;
+                        recipesContainer.appendChild(recipeDiv);
+                    });
+                }
+                
+            } catch (error) {
+                alert('Error: ' + error.response?.data?.message);
+                console.error(error);
+            }
+        }
+
+        loadCollection();
+    </script>
+</body>
+</html>

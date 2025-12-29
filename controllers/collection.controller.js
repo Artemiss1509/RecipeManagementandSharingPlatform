@@ -36,7 +36,6 @@ export const getUserCollections = async (req, res) => {
                 model: Recipe,
                 as: 'recipes',
                 through: { attributes: [] },
-                limit: 3,
                 attributes: ['id', 'title', 'imageUrl']
             }],
             order: [['createdAt', 'DESC']]

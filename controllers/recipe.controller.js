@@ -136,7 +136,7 @@ export const getRecipeById = async (req, res) => {
 export const updateRecipe = async (req, res) => {
     try {
         const { id } = req.params;
-        const { title, description, ingredients, instructions, prepTime, cookTime, servings, difficulty, category, dietaryPreferences } = req.body;
+        const { title, description, ingredients, instructions, prepTime, cookTime, servings, difficulty, category, dietaryPreferences} = req.body;
 
         const recipe = await Recipe.findByPk(id);
 

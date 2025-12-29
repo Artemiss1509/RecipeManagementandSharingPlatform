@@ -1,0 +1,215 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Admin Dashboard</title>
+    <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
+</head>
+<body>
+    <h1>Admin Dashboard</h1>
+    <button onclick="window.location.href='recipes.html'">Back to Recipes</button>
+    <button onclick="logout()">Logout</button>
+
+    <div id="stats"></div>
+
+    <div>
+        <h3>Manage Users</h3>
+        <button onclick="searchUsers()">Get All Users</button>
+        <div id="users"></div>
+        <div id="reviews"></div>
+    </div>
+    <div>
+        <h3>Manage Recipes</h3>
+        <button onclick="searchRecipes()">Get All Recipes</button>
+        <div id="recipes"></div>
+    </div>
+    
+
+    <script>
+        const API_URL = 'http://localhost:3000/api';
+
+        function getToken() {
+            return localStorage.getItem('token');
+        }
+
+        function logout() {
+            localStorage.clear();
+            window.location.href = 'login.html';
+        }
+
+        async function loadStats() {
+            try {
+                const response = await axios.get(`${API_URL}/admin/statistics`, {
+                    headers: { Authorization: `Bearer ${getToken()}` }
+                });
+                
+                const stats = response.data.statistics;
+                document.getElementById('stats').innerHTML = `
+                    <h2>Platform Statistics</h2>
+                    <p>Total Users: ${stats.totalUsers}</p>
+                    <p>Active Users: ${stats.activeUsers}</p>
+                    <p>Total Recipes: ${stats.totalRecipes}</p>
+                    <p>Total Reviews: ${stats.totalReviews}</p>
+                    <p>Recent Recipes (30 days): ${stats.recentRecipes}</p>
+                    <p>Recent Users (30 days): ${stats.recentUsers}</p>
+                `;
+            } catch (error) {
+                alert('Error: ' + error.response?.data?.message);
+                console.error(error);
+            }
+        }
+
+        async function searchUsers() {
+            try {
+                const response = await axios.get(`${API_URL}/admin/users`, {
+                    headers: { Authorization: `Bearer ${getToken()}` }
+                });
+                
+                const container = document.getElementById('users');
+                container.innerHTML = '';
+
+                response.data.users.forEach(user => {
+                    const div = document.createElement('div');
+                    div.style.border = '1px solid #ccc';
+                    div.style.padding = '10px';
+                    div.style.margin = '5px 0';
+                    div.innerHTML = `
+                        <p><strong>${user.username}</strong> - ${user.email}</p>
+                        <p>Status: ${user.isActive ? 'Active' : 'Banned'}</p>
+                        <p>Role: ${user.role}</p>
+                        <button onclick="toggleUserStatus(${user.id})">${user.isActive ? 'Ban' : 'Activate'}</button>
+                        <button onclick="deleteUser(${user.id})">Delete</button>
+                        <button onclick="makeAdmin(${user.id})">Make Admin</button>
+                        <button onclick="getReviews(${user.id})">Get Reviews</button>
+                    `;
+                    container.appendChild(div);
+                });
+            } catch (error) {
+                alert('Error: ' + error.response?.data?.message);
+            }
+        }
+
+        async function toggleUserStatus(userId) {
+            try {
+                await axios.patch(`${API_URL}/admin/users/${userId}/status`, {}, {
+                    headers: { Authorization: `Bearer ${getToken()}` }
+                });
+                alert('User status updated!');
+                searchUsers();
+            } catch (error) {
+                alert('Error: ' + error.response?.data?.message);
+            }
+        }
+
+        async function deleteUser(userId) {
+            if (confirm('Delete this user?')) {
+                try {
+                    await axios.delete(`${API_URL}/admin/users/${userId}`, {
+                        headers: { Authorization: `Bearer ${getToken()}` }
+                    });
+                    alert('User deleted!');
+                    searchUsers();
+                } catch (error) {
+                    alert('Error: ' + error.response?.data?.message);
+                }
+            }
+        }
+
+        async function searchRecipes() {
+            try {
+                const response = await axios.get(`${API_URL}/recipes`)
+
+                console.log(response.data.recipes)
+
+                const container = document.getElementById('recipes');
+                container.innerHTML = '';
+                response.data.recipes.forEach(recipe=>{
+                    const div = document.createElement('div');
+                    div.style.border = '1px solid #ccc';
+                    div.style.padding = '10px';
+                    div.style.margin = '5px 0';
+                    div.innerHTML = `
+                        <p>${recipe.title}</p>
+                        <p>${recipe.description}</p>
+                        <button onclick="deleteRecipe(${recipe.id})">Delete Recipe</button>
+                    `;
+                    container.appendChild(div);
+                })
+            } catch (error) {
+                console.error("Error getting recipes", error)
+            }
+        }
+        async function makeAdmin(id){
+            try {
+                await axios.patch(`${API_URL}/admin/users/${id}/make-admin`, {
+                    headers: { Authorization: `Bearer ${getToken()}` }
+                });
+                alert("User is now an Admin")
+                searchUsers()
+            } catch (error) {
+                console.error("Could not make Admin", error)
+            }
+        }
+        async function deleteRecipe(id) {
+            try {
+                await axios.delete(`${API_URL}/admin/recipes/${id}`, {
+                    headers: { Authorization: `Bearer ${getToken()}` }
+                });
+                alert("Recipe Deleted");
+                searchRecipes()
+            } catch (error) {
+                console.error("Recipe deletion error", error)
+            }
+        }
+
+        async function getReviews(id) {
+            try {
+                const response = await axios.get(`${API_URL}/reviews/user/${id}`)
+                const container = document.getElementById('reviews');
+                container.innerHTML = '';
+                if (response.data.reviews.length === 0){
+                    const div = document.createElement('div');
+                    div.style.border = '1px solid #ccc';
+                    div.style.padding = '10px';
+                    div.style.margin = '5px 0';
+                    div.innerHTML = `
+                        <p>No Reviews</p>
+                        
+                    `;
+                    container.appendChild(div);
+                }else{
+                    response.data.reviews.forEach(review=>{
+                        const div = document.createElement('div');
+                        div.style.border = '1px solid #ccc';
+                        div.style.padding = '10px';
+                        div.style.margin = '5px 0';
+                        div.innerHTML = `
+                            <p>${review.comment}</p>
+                            <p>${review.tips}</p>
+                            <button onclick="deleteReview(${review.id})">Delete Review</button>
+                            
+                        `;
+                        container.appendChild(div);
+                    })
+                }
+
+            } catch (error) {
+                console.error("Error fetching reviews", error)
+            }
+        }
+
+        async function deleteReview(id) {
+            try {
+                await axios.delete(`${API_URL}/admin/reviews/${id}`, {
+                    headers: { Authorization: `Bearer ${getToken()}` }
+                });
+                alert("Review deleted")
+                searchUsers()
+            } catch (error) {
+                console.error("Error deleteing review", error)
+            }
+        }
+
+        loadStats();
+    </script>
+</body>
+</html>

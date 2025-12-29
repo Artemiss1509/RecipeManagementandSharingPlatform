@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>My Favorites</title>
+    <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
+</head>
+<body>
+    <h1>My Favorite Recipes</h1>
+    <button onclick="window.location.href='recipes.html'">Browse Recipes</button>
+    <button onclick="logout()">Logout</button>
+
+    <div id="favorites"></div>
+
+    <script>
+        const API_URL = 'http://localhost:3000/api';
+
+        function getToken() {
+            return localStorage.getItem('token');
+        }
+
+        function logout() {
+            localStorage.clear();
+            window.location.href = 'login.html';
+        }
+
+        async function loadFavorites() {
+            try {
+                const response = await axios.get(`${API_URL}/favorites`, {
+                    headers: { Authorization: `Bearer ${getToken()}` }
+                });
+                
+                const container = document.getElementById('favorites');
+                container.innerHTML = '';
+
+                response.data.favorites.forEach(recipe => {
+                    const div = document.createElement('div');
+                    div.style.border = '1px solid #ccc';
+                    div.style.padding = '10px';
+                    div.style.margin = '10px 0';
+                    div.innerHTML = `
+                        <h3>${recipe.title}</h3>
+                        <p>${recipe.description}</p>
+                        <p>By: ${recipe.author?.username}</p>
+                        <button onclick="viewRecipe(${recipe.id})">View</button>
+                        <button onclick="removeFavorite(${recipe.id})">Remove</button>
+                    `;
+                    container.appendChild(div);
+                });
+            } catch (error) {
+                alert('Error: ' + error.response?.data?.message);
+            }
+        }
+
+        function viewRecipe(id) {
+            window.location.href = `recipe-detail.html?id=${id}`;
+        }
+
+        async function removeFavorite(recipeId) {
+            try {
+                await axios.delete(`${API_URL}/favorites/${recipeId}`, {
+                    headers: { Authorization: `Bearer ${getToken()}` }
+                });
+                alert('Removed from favorites!');
+                loadFavorites();
+            } catch (error) {
+                alert('Error: ' + error.response?.data?.message);
+            }
+        }
+
+        loadFavorites();
+    </script>
+</body>
+</html>

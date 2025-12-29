@@ -2,6 +2,7 @@ import User from '../models/user.model.js';
 import Recipe from '../models/recipes.model.js';
 import Review from '../models/review.model.js';
 import { deleteFromS3 } from '../utils/AWS-S3.js';
+import { Op } from 'sequelize';
 
 
 export const getAllUsers = async (req, res) => {
@@ -45,7 +46,7 @@ export const getAllUsers = async (req, res) => {
     }
 };
 
-// Ban/Unban User
+
 export const toggleUserStatus = async (req, res) => {
     try {
         const { userId } = req.params;
@@ -120,7 +121,6 @@ export const deleteUser = async (req, res) => {
 export const deleteRecipeAdmin = async (req, res) => {
     try {
         const { recipeId } = req.params;
-        const { reason } = req.body;
 
         const recipe = await Recipe.findByPk(recipeId);
         if (!recipe) {
@@ -134,8 +134,7 @@ export const deleteRecipeAdmin = async (req, res) => {
         await recipe.destroy();
 
         res.status(200).json({ 
-            message: 'Recipe deleted successfully',
-            reason 
+            message: 'Recipe deleted successfully', 
         });
     } catch (error) {
         res.status(500).json({ 
@@ -148,7 +147,6 @@ export const deleteRecipeAdmin = async (req, res) => {
 export const deleteReviewAdmin = async (req, res) => {
     try {
         const { reviewId } = req.params;
-        const { reason } = req.body;
 
         const review = await Review.findByPk(reviewId);
         if (!review) {
@@ -159,7 +157,6 @@ export const deleteReviewAdmin = async (req, res) => {
 
         res.status(200).json({ 
             message: 'Review deleted successfully',
-            reason 
         });
     } catch (error) {
         res.status(500).json({ 

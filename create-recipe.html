@@ -1,0 +1,96 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Create Recipe</title>
+    <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
+</head>
+<body>
+    <h1>Create New Recipe</h1>
+    <button onclick="window.location.href='recipes.html'">Back</button>
+    
+    <form id="recipe-form">
+        <input type="text" id="title" placeholder="Recipe Title" required><br>
+        <textarea id="description" placeholder="Description" required></textarea><br>
+        
+        <h3>Ingredients (one per line)</h3>
+        <textarea id="ingredients" placeholder="Ingredient 1&#10;Ingredient 2" required></textarea><br>
+        
+        <h3>Instructions (one per line)</h3>
+        <textarea id="instructions" placeholder="Step 1&#10;Step 2" required></textarea><br>
+        
+        <input type="number" id="prepTime" placeholder="Prep Time (min)" required>
+        <input type="number" id="cookTime" placeholder="Cook Time (min)" required>
+        <input type="number" id="servings" placeholder="Servings" required><br>
+        <input type="file" id="image" accept="image/*"><br>
+        
+        <select id="difficulty" required>
+            <option value="">Select Difficulty</option>
+            <option value="easy">Easy</option>
+            <option value="medium">Medium</option>
+            <option value="hard">Hard</option>
+        </select>
+        
+        <select id="category" required>
+            <option value="">Select Category</option>
+            <option value="breakfast">Breakfast</option>
+            <option value="lunch">Lunch</option>
+            <option value="dinner">Dinner</option>
+            <option value="dessert">Dessert</option>
+        </select><br>
+        
+        <label>
+            <input type="checkbox" value="vegetarian"> Vegetarian
+        </label>
+        <label>
+            <input type="checkbox" value="vegan"> Vegan
+        </label>
+        <label>
+            <input type="checkbox" value="gluten-free"> Gluten Free
+        </label><br>
+        
+        <button type="submit">Create Recipe</button>
+    </form>
+
+    <script>
+        const API_URL = 'http://localhost:3000/api';
+
+        function getToken() {
+            return localStorage.getItem('token');
+        }
+
+        document.getElementById('recipe-form').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            
+            const ingredients = document.getElementById('ingredients').value.split('\n').filter(i => i.trim());
+            const instructions = document.getElementById('instructions').value.split('\n').filter(i => i.trim());
+            const checkboxes = document.querySelectorAll('input[type="checkbox"]:checked');
+            const dietaryPreferences = Array.from(checkboxes).map(cb => cb.value);
+            
+            const formData = new FormData();
+            formData.append('title', document.getElementById('title').value);
+            formData.append('description', document.getElementById('description').value);
+            formData.append('ingredients', JSON.stringify(ingredients));
+            formData.append('instructions', JSON.stringify(instructions));
+            formData.append('prepTime', document.getElementById('prepTime').value);
+            formData.append('cookTime', document.getElementById('cookTime').value);
+            formData.append('servings', document.getElementById('servings').value);
+            formData.append('difficulty', document.getElementById('difficulty').value);
+            formData.append('category', document.getElementById('category').value);
+            formData.append('dietaryPreferences', JSON.stringify(dietaryPreferences));
+            formData.append('image', document.getElementById('image').files[0]);
+
+            try {
+                await axios.post(`${API_URL}/recipes/add`, formData, {
+                    headers: { 
+                        Authorization: `Bearer ${getToken()}`
+                    }
+                });
+                alert('Recipe created successfully!');
+                window.location.href = 'my-recipes.html';
+            } catch (error) {
+                alert('Error: ' + error.response?.data?.message);
+            }
+        });
+    </script>
+</body>
+</html>

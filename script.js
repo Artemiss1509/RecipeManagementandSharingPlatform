@@ -53,7 +53,7 @@ async function loginFormSubmit(event) {
         localStorage.setItem('user', response.data.user.name);
         
         alert('Login successful! ');
-        window.location.href = 'HomePage.html';
+        window.location.href = 'recipes.html';
     } catch (error) {
         displayError(error.response?.data?.message || 'Login failed');
         console.error('Error during login:', error);

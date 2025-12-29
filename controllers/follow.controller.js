@@ -154,24 +154,6 @@ export const getFollowing = async (req, res) => {
     }
 };
 
-export const checkFollowing = async (req, res) => {
-    try {
-        const { userId } = req.params;
-
-        const follow = await Follow.findOne({
-            where: { followerId:  req.user.id, followingId: userId }
-        });
-
-        res.status(200).json({ 
-            isFollowing:  !!follow 
-        });
-    } catch (error) {
-        res.status(500).json({ 
-            message: 'Failed to check following status', 
-            error: error.message 
-        });
-    }
-};
 
 export const getActivityFeed = async (req, res) => {
     try {

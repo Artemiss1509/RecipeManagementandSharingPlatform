@@ -18,7 +18,7 @@ router.get('/:id', getRecipeById);
 router.get('/user/:userId', getUserRecipes);
 
 // Protected routes
-router.post('/', authenticate, upload.single('image'), createRecipe);
+router.post('/add', authenticate, upload.single('image'), createRecipe);
 router.put('/:id', authenticate, upload.single('image'), updateRecipe);
 router.delete('/:id', authenticate, deleteRecipe);
 

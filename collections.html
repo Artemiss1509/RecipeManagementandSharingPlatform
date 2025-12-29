@@ -1,0 +1,101 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>My Collections</title>
+    <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
+</head>
+<body>
+    <h1>My Recipe Collections</h1>
+    <button onclick="window.location.href='recipes.html'">Browse Recipes</button>
+    <button onclick="logout()">Logout</button>
+
+    <div>
+        <h3>Create New Collection</h3>
+        <input type="text" id="collectionName" placeholder="Collection Name">
+        <input type="text" id="collectionDesc" placeholder="Description">
+        <button onclick="createCollection()">Create</button>
+    </div>
+
+    <div id="collections"></div>
+
+    <script>
+        const API_URL = 'http://localhost:3000/api';
+
+        function getToken() {
+            return localStorage.getItem('token');
+        }
+
+        function logout() {
+            localStorage.clear();
+            window.location.href = 'login.html';
+        }
+
+        async function createCollection() {
+            const name = document.getElementById('collectionName').value;
+            const description = document.getElementById('collectionDesc').value;
+
+            try {
+                await axios.post(`${API_URL}/collections`, 
+                    { name, description },
+                    { headers: { Authorization: `Bearer ${getToken()}` } }
+                );
+                alert('Collection created!');
+                document.getElementById('collectionName').value = '';
+                document.getElementById('collectionDesc').value = '';
+                loadCollections();
+            } catch (error) {
+                alert('Error: ' + error.response?.data?.message);
+            }
+        }
+
+        async function loadCollections() {
+            try {
+                const response = await axios.get(`${API_URL}/collections`, {
+                    headers: { Authorization: `Bearer ${getToken()}` }
+                });
+                
+                const container = document.getElementById('collections');
+                container.innerHTML = '';
+
+                response.data.collections.forEach(collection => {
+                    const div = document.createElement('div');
+                    div.style.border = '1px solid #ccc';
+                    div.style.padding = '10px';
+                    div.style.margin = '10px 0';
+                    div.innerHTML = `
+                        <h3>${collection.name}</h3>
+                        <p>${collection.description}</p>
+                        <p>Recipes: ${collection.recipes?.length || 0}</p>
+                        <button onclick="viewCollection(${collection.id})">View</button>
+                        <button onclick="deleteCollection(${collection.id})">Delete</button>
+                    `;
+                    container.appendChild(div);
+                });
+            } catch (error) {
+                alert('Error: ' + error.response?.data?.message);
+                console.error(error);
+            }
+        }
+
+        function viewCollection(id) {
+            window.location.href = `collection-detail.html?id=${id}`;
+        }
+
+        async function deleteCollection(id) {
+            if (confirm('Delete this collection?')) {
+                try {
+                    await axios.delete(`${API_URL}/collections/${id}`, {
+                        headers: { Authorization: `Bearer ${getToken()}` }
+                    });
+                    alert('Collection deleted!');
+                    loadCollections();
+                } catch (error) {
+                    alert('Error: ' + error.response?.data?.message);
+                }
+            }
+        }
+
+        loadCollections();
+    </script>
+</body>
+</html>

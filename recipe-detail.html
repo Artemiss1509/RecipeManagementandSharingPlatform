@@ -1,0 +1,186 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Recipe Details</title>
+    <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
+</head>
+<body>
+    <button onclick="window.location.href='recipes.html'">Back to Recipes</button>
+    <button onclick="logout()">Logout</button>
+    <button onclick="addRecipeToCol()">Add Recipe to my Collection</button>
+
+    <div id="recipe-detail"></div>
+    
+    <div>
+        <h3>Rate this Recipe</h3>
+        <select id="rating">
+            <option value="1">1 Star</option>
+            <option value="2">2 Stars</option>
+            <option value="3">3 Stars</option>
+            <option value="4">4 Stars</option>
+            <option value="5">5 Stars</option>
+        </select>
+        <button onclick="rateRecipe()">Submit Rating</button>
+    </div>
+
+    <div>
+        <h3>Add Review</h3>
+        <textarea id="comment" placeholder="Your review..."></textarea><br>
+        <textarea id="tips" placeholder="Any tips..."></textarea><br>
+        <button onclick="addReview()">Submit Review</button>
+    </div>
+
+    <div id="reviews"></div>
+
+    <script>
+        const API_URL = 'http://localhost:3000/api';
+        const params = new URLSearchParams(window.location.search);
+        const recipeId = params.get('id');
+
+        function getToken() {
+            return localStorage.getItem('token');
+        }
+
+        function logout() {
+            localStorage.clear();
+            window.location.href = 'login.html';
+        }
+
+        async function loadRecipe() {
+            try {
+                const response = await axios.get(`${API_URL}/recipes/${recipeId}`);
+                const recipe = response.data.recipe;
+                
+                document.getElementById('recipe-detail').innerHTML = `
+                    <h1>${recipe.title}</h1>
+                    <p>${recipe.description}</p>
+                    <h3>Ingredients:</h3>
+                    <ul>${recipe.ingredients.map(i => `<li>${i}</li>`).join('')}</ul>
+                    <h3>Instructions:</h3>
+                    <ol>${recipe.instructions.map(i => `<li>${i}</li>`).join('')}</ol>
+                    <p>Prep: ${recipe.prepTime}min | Cook: ${recipe.cookTime}min | Servings: ${recipe.servings}</p>
+                    <p>Difficulty: ${recipe.difficulty} | Category: ${recipe.category}</p>
+                    <p>Rating: ${recipe.averageRating || 'No ratings'} (${recipe.totalRatings || 0})</p>
+                    <p>By: ${recipe.author?.username}</p>
+                    <button onclick="followUser()">Follow</button>
+                    <button onclick="viewProfile('${recipe.author?.id}')">View Author Profile</button>
+                    <img src="${recipe.imageUrl}" width="300">
+                `;
+            } catch (error) {
+                alert('Error loading recipe: ' + error.response?.data?.message);
+            }
+        }
+
+        async function rateRecipe() {
+            const rating = document.getElementById('rating').value;
+            try {
+                await axios.post(`${API_URL}/ratings/${recipeId}`, 
+                    { rating: parseInt(rating) },
+                    { headers: { Authorization: `Bearer ${getToken()}` } }
+                );
+                alert('Rating submitted!');
+                loadRecipe();
+            } catch (error) {
+                alert('Error: ' + error.response?.data?.message);
+            }
+        }
+
+        async function addReview() {
+            const comment = document.getElementById('comment').value;
+            const tips = document.getElementById('tips').value;
+            
+            try {
+                await axios.post(`${API_URL}/reviews/${recipeId}`, 
+                    { comment, tips },
+                    { headers: { Authorization: `Bearer ${getToken()}` } }
+                );
+                alert('Review added!');
+                document.getElementById('comment').value = '';
+                document.getElementById('tips').value = '';
+                loadReviews();
+            } catch (error) {
+                alert('Error: ' + error.response?.data?.message);
+            }
+        }
+
+        async function loadReviews() {
+            try {
+                const response = await axios.get(`${API_URL}/reviews/recipe/${recipeId}`);
+                const container = document.getElementById('reviews');
+                container.innerHTML = '<h3>Reviews</h3>';
+                
+                response.data.reviews.forEach(review => {
+                    const div = document.createElement('div');
+                    div.style.border = '1px solid #eee';
+                    div.style.padding = '10px';
+                    div.style.margin = '5px 0';
+                    div.innerHTML = `
+                        <p><strong>${review.user?.username}</strong></p>
+                        <p>${review.comment}</p>
+                        ${review.tips ? `<p><em>Tips: ${review.tips}</em></p>` : ''}
+                    `;
+                    container.appendChild(div);
+                });
+            } catch (error) {
+                console.error('Error loading reviews:', error);
+            }
+        }
+        async function addRecipeToCol() {
+            try {
+                const response = await axios.get(`${API_URL}/collections`, {
+                    headers: { Authorization: `Bearer ${getToken()}` }
+                });
+                
+                const collections = response.data.collections;
+                if (collections.length === 0) {
+                    alert('No collections found. Please create a collection first.');
+                    return;
+                }
+
+                const colNames = collections.map((col, index) => `${index + 1}. ${col.name}`).join('\n');
+                const choice = prompt(`Select a collection to add the recipe:\n${colNames}`);
+                const colIndex = parseInt(choice) - 1;
+
+                if (colIndex >= 0 && colIndex < collections.length) {
+                    const selectedCol = collections[colIndex];
+                    await axios.post(`${API_URL}/collections/${selectedCol.id}/recipes/${recipeId}`, 
+                        { recipeId: recipeId },
+                        { headers: { Authorization: `Bearer ${getToken()}` } }
+                    );
+                    alert(`Recipe added to collection: ${selectedCol.name}`);
+                } else {
+                    alert('Invalid selection.');
+                }
+            } catch (error) {
+                alert('Error: ' + error.response?.data?.message);
+            }
+        }
+
+        async function followUser() {
+            try {
+                const recipeRes = await axios.get(`${API_URL}/recipes/${recipeId}`);
+                const authorId = recipeRes.data.recipe.author.id;
+
+                await axios.post(`${API_URL}/follow/${authorId}`, {}, {
+                    headers: { Authorization: `Bearer ${getToken()}` }
+                });
+                alert('You are now following the author!');
+            } catch (error) {
+                alert('Error: ' + error.response?.data?.message);
+            }
+        }
+
+        async function viewProfile(id) {
+            try {
+                window.location.href = `profile-view.html?id=${id}`;
+            } catch (error) {
+                alert('Error: ' + error.response?.data?.message);
+            }
+        }
+
+
+        loadRecipe();
+        loadReviews();
+    </script>
+</body>
+</html>

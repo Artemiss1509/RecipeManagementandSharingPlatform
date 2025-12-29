@@ -14,7 +14,7 @@ const router = Router();
 
 router.post('/', authenticate, createCollection);
 router.get('/', authenticate, getUserCollections);
-router.get('/user/:userId', getUserCollections);
+// router.get('/user/:userId', getUserCollections);
 router.get('/:id', getCollectionById);
 router.put('/:id', authenticate, updateCollection);
 router.delete('/:id', authenticate, deleteCollection);

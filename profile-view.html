@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Author Profile Info</title>
+    <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
+</head>
+<body>
+    <button onclick="window.location.href='recipes.html'">Back to Recipes</button>
+    <div id="author-profile"></div>
+    <script>
+        const API_URL = 'http://localhost:3000/api';
+        const params = new URLSearchParams(window.location.search);
+        const authorId = params.get('id');
+
+        function getToken() {
+            return localStorage.getItem('token');
+        }
+
+        async function loadAuthorProfile() {
+            try {
+                const response = await axios.get(`${API_URL}/profile/${authorId}`);
+                
+                const user = response.data.user;
+                const stats = response.data.statistics;
+                
+                document.getElementById('author-profile').innerHTML = `
+                    <h2>${user.username}</h2>
+                    <p>Email: ${user.email}</p>
+                    <p>Bio: ${user.bio || 'No bio yet'}</p>
+                    <p>Recipes: ${stats.recipes} | Followers: ${stats.followers} | Following: ${stats.following}</p>
+                    <button onclick="followUser()">Follow</button>
+                    <button onclick="unfollowUser()">Unfollow</button>
+                `;
+            } catch (error) {
+                alert('Error: ' + error.response?.data?.message);
+                console.error(error);
+            }
+        }
+
+        async function followUser() {
+            try {
+                await axios.post(`${API_URL}/follow/${authorId}`, {}, {
+                    headers: { Authorization: `Bearer ${getToken()}` }
+                });
+                alert('Followed successfully');
+            } catch (error) {
+                alert('Error: ' + error.response?.data?.message);
+            }
+        }
+
+        async function unfollowUser() {
+            try {
+                await axios.delete(`${API_URL}/follow/${authorId}`, {
+                    headers: { Authorization: `Bearer ${getToken()}` }
+                });
+                alert('Unfollowed successfully');
+            } catch (error) {
+                alert('Error: ' + error.response?.data?.message);
+            }
+        }
+
+        loadAuthorProfile();
+    </script>
+</body>
+</html>

@@ -1,0 +1,149 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Browse Recipes</title>
+    <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
+</head>
+<body>
+    <h1>Recipe Browser</h1>
+    <button onclick="logout()">Logout</button>
+    <button onclick="window.location.href='favorites.html'">My Favorites</button>
+    <button onclick="window.location.href='collections.html'">My Collections</button>
+    <button onclick="window.location.href='activity-feed.html'">Activity Feed</button>
+    <button onclick="window.location.href='my-recipes.html'">My Recipes</button>
+    <button onclick="window.location.href='create-recipe.html'">Create Recipe</button>
+    <button onclick="window.location.href='profile.html'">My Profile</button>
+    <button onclick="window.location.href='admin.html'">Admin Access</button>
+    
+    <div>
+        <h3>Search & Filter</h3>
+        <input type="text" id="search" placeholder="Search recipes...">
+        <select id="category">
+            <option value="">All Categories</option>
+            <option value="breakfast">Breakfast</option>
+            <option value="lunch">Lunch</option>
+            <option value="dinner">Dinner</option>
+            <option value="dessert">Dessert</option>
+        </select>
+        <select id="difficulty">
+            <option value="">All Difficulties</option>
+            <option value="easy">Easy</option>
+            <option value="medium">Medium</option>
+            <option value="hard">Hard</option>
+        </select>
+        <select id="dietary">
+            <option value="">All Dietary</option>
+            <option value="vegetarian">Vegetarian</option>
+            <option value="vegan">Vegan</option>
+            <option value="gluten-free">Gluten Free</option>
+        </select>
+        <button onclick="searchRecipes()">Search</button>
+    </div>
+
+    <div id="recipes"></div>
+    
+    <div id="pagination">
+        <button onclick="prevPage()" id="prevBtn">Previous</button>
+        <span id="pageInfo"></span>
+        <button onclick="nextPage()" id="nextBtn">Next</button>
+    </div>
+
+    <script>
+        const API_URL = 'http://localhost:3000/api';
+        let currentPage = 1;
+        let totalPages = 1;
+
+        function getToken() {
+            return localStorage.getItem('token');
+        }
+
+        function logout() {
+            localStorage.clear();
+            window.location.href = 'login.html';
+        }
+
+        async function searchRecipes() {
+            const search = document.getElementById('search').value;
+            const category = document.getElementById('category').value;
+            const difficulty = document.getElementById('difficulty').value;
+            const dietary = document.getElementById('dietary').value;
+
+            let url = `${API_URL}/recipes?page=${currentPage}`;
+            if (search) url += `&search=${search}`;
+            if (category) url += `&category=${category}`;
+            if (difficulty) url += `&difficulty=${difficulty}`;
+            if (dietary) url += `&dietaryPreferences=${dietary}`;
+
+            try {
+                const response = await axios.get(url);
+                displayRecipes(response.data.recipes);
+                totalPages = response.data.pagination.pages;
+                updatePagination();
+            } catch (error) {
+                alert('Error fetching recipes: ' + error.response?.data?.message);
+            }
+        }
+
+        function displayRecipes(recipes) {
+            const container = document.getElementById('recipes');
+            container.innerHTML = '';
+            
+            recipes.forEach(recipe => {
+                const div = document.createElement('div');
+                div.style.border = '1px solid #ccc';
+                div.style.padding = '10px';
+                div.style.margin = '10px 0';
+                div.innerHTML = `
+                    <h3>${recipe.title}</h3>
+                    <p>${recipe.description}</p>
+                    <p>Category: ${recipe.category} | Difficulty: ${recipe.difficulty}</p>
+                    <p>Prep Time: ${recipe.prepTime}min | Cook Time: ${recipe.cookTime}min</p>
+                    <p>Rating: ${recipe.averageRating || 'No ratings'} (${recipe.totalRatings || 0} ratings)</p>
+                    <p>By: ${recipe.author?.username}</p>
+                    <img src="${recipe.imageUrl}" width="150">
+                    <button onclick="viewRecipe(${recipe.id})">View Details</button>
+                    <button onclick="addToFavorites(${recipe.id})">Add to Favorites</button>
+                `;
+                container.appendChild(div);
+            });
+        }
+
+        function updatePagination() {
+            document.getElementById('pageInfo').textContent = `Page ${currentPage} of ${totalPages}`;
+            document.getElementById('prevBtn').disabled = currentPage === 1;
+            document.getElementById('nextBtn').disabled = currentPage === totalPages;
+        }
+
+        function prevPage() {
+            if (currentPage > 1) {
+                currentPage--;
+                searchRecipes();
+            }
+        }
+
+        function nextPage() {
+            if (currentPage < totalPages) {
+                currentPage++;
+                searchRecipes();
+            }
+        }
+
+        function viewRecipe(id) {
+            window.location.href = `recipe-detail.html?id=${id}`;
+        }
+
+        async function addToFavorites(recipeId) {
+            try {
+                await axios.post(`${API_URL}/favorites/${recipeId}`, {}, {
+                    headers: { Authorization: `Bearer ${getToken()}` }
+                });
+                alert('Added to favorites!');
+            } catch (error) {
+                alert('Error: ' + error.response?.data?.message);
+            }
+        }
+
+        searchRecipes();
+    </script>
+</body>
+</html>
